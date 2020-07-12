@@ -18,22 +18,22 @@ BASE_DEPENDENCIES = [
 os.chdir(os.path.normpath(BASEDIR))
 
 setup(
-    name='PYPI_PACKAGE_NAME',
+    name='wf-graphql-client-python',
     packages=find_packages(),
     version=VERSION,
     include_package_data=True,
-    description='SHORT_DESCRIPTION',
+    description='A simple GraphQL client for Python',
     long_description=open('README.md').read(),
-    url='GITHUB_URL',
-    author='AUTHOR_FULL_NAME',
-    author_email='AUTHOR_EMAIL_ADDRESS',
+    url='https://github.com/WildflowerSchools/wf-graphql-client-python',
+    author='Theodore Quinn',
+    author_email='ted.quinn@wildflowerschools.org',
     install_requires=BASE_DEPENDENCIES,
     # tests_require=TEST_DEPENDENCIES,
     # extras_require = {
     #     'test': TEST_DEPENDENCIES,
     #     'local': LOCAL_DEPENDENCIES
     # },
-    keywords=[],
+    keywords=['GraphQL', 'interface'],
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',

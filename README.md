@@ -1,3 +1,3 @@
-# MODULE_NAME
+# graphql_client
 
-SHORT_DESCRIPTION
+A simple GraphQL client for Python
