@@ -8,18 +8,10 @@ INDENT_STRING = '  '
 class GraphQLJsonEncoder(json.JSONEncoder):
 
     def default(self, obj):
-        if isinstance(obj, bytes):
-            return obj.decode("utf8")
-        # if isinstance(obj, datetime):
-        #     return obj.strftime(ISO_FORMAT)
-        # if isinstance(obj, date):
-        #     return obj.strftime(DATE_FORMAT)
-        # if hasattr(obj, "to_dict"):
-        #     to_json = getattr(obj, "to_dict")
-        #     if callable(to_json):
-        #         return to_json()
-        # if hasattr(obj, "value"):
-        #     return obj.value
+        if hasattr(obj, "graphql_json"):
+            graphql_json = getattr(obj, "graphql_json")
+            if callable(graphql_json):
+                return graphql_json()
         return json.JSONEncoder.default(self, obj)
 
 class Operation:
