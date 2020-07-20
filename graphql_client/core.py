@@ -146,7 +146,10 @@ class Field:
         return self
 
     def graphql_request_string(self):
-        request_string = self.name
+        request_string = ''
+        if self.alias is not None:
+            request_string += f'{self.alias}: '
+        request_string += self.name
         if len(self.parameters) > 0:
             request_string += '(\n{}\n)'.format(
                 indent(',\n'.join([parameter.graphql_request_string() for parameter in self.parameters]))
