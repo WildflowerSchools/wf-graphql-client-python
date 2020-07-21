@@ -1,18 +1,8 @@
+import graphql_client.utils
 import json
 import logging
 
 logger = logging.getLogger(__name__)
-
-INDENT_STRING = '  '
-
-class GraphQLJsonEncoder(json.JSONEncoder):
-
-    def default(self, obj):
-        if hasattr(obj, "graphql_json"):
-            graphql_json = getattr(obj, "graphql_json")
-            if callable(graphql_json):
-                return graphql_json()
-        return json.JSONEncoder.default(self, obj)
 
 class Operation:
 
@@ -60,28 +50,39 @@ class Operation:
         self.fields.extend(fields)
         return self
 
-    def request_body(self):
+    def request(
+        self,
+        client,
+        http_request_timeout=10
+    ):
+        return client.execute(
+            request_body_string = self.request_body_string(),
+            request_variables_dict=self.request_variables_dict(),
+            http_request_timeout=http_request_timeout
+        )
+
+    def request_body_string(
+        self,
+        indent_string='  '
+    ):
         request_body_string = '{} '.format(self.operation_type)
         if self.operation_name is not None:
             request_body_string += self.operation_name
         if len(self.variables) > 0:
             request_body_string += '(\n{}\n)'.format(
-                indent(',\n'.join([f'${variable.name}: {variable.type}' for variable in self.variables]))
+                indent(',\n'.join([f'${variable.name}: {variable.type}' for variable in self.variables]), indent_string=indent_string)
             )
         if len(self.fields) > 0:
             request_body_string += '{{\n{}\n}}'.format(
-                indent('\n'.join([field.graphql_request_string() for field in self.fields]))
+                indent('\n'.join([field.request_body_string() for field in self.fields]), indent_string=indent_string)
             )
         return request_body_string
 
-    def request_variables(self):
-        variables_dict = {variable.name: variable.value for variable in self.variables}
-        variables_json = json.dumps(
-            variables_dict,
-            cls=GraphQLJsonEncoder,
-            indent=INDENT_STRING
-        )
-        return variables_json
+    def request_variables_dict(self):
+        return {variable.name: variable.value for variable in self.variables}
+
+    def request_variables_json(self):
+        return graphql_client.utils.graphql_json_dumps(self.request_variables_dict())
 
 class Variable:
 
@@ -137,18 +138,21 @@ class Field:
         self.subfields.extend(subfields)
         return self
 
-    def graphql_request_string(self):
+    def request_body_string(
+        self,
+        indent_string='  '
+    ):
         request_string = ''
         if self.alias is not None:
             request_string += f'{self.alias}: '
         request_string += self.name
         if len(self.parameters) > 0:
             request_string += '(\n{}\n)'.format(
-                indent(',\n'.join([parameter.graphql_request_string() for parameter in self.parameters]))
+                indent(',\n'.join([parameter.request_body_string() for parameter in self.parameters]), indent_string=indent_string)
             )
         if len(self.subfields) > 0:
             request_string += ' {{\n{}\n}}'.format(
-                indent('\n'.join([subfield.graphql_request_string() for subfield in self.subfields]))
+                indent('\n'.join([subfield.request_body_string() for subfield in self.subfields]), indent_string=indent_string)
             )
         return request_string
 
@@ -162,12 +166,15 @@ class Parameter:
         self.parameter_name = parameter_name
         self.variable_name= variable_name
 
-    def graphql_request_string(self):
+    def request_body_string(self):
         request_string = '{}: {}'.format(
             self.parameter_name,
             f'${self.variable_name}'
         )
         return request_string
 
-def indent(multiline_string):
-    return '\n'.join(f'{INDENT_STRING}{line}' for line in multiline_string.splitlines())
+def indent(
+    multiline_string,
+    indent_string='  '
+):
+    return '\n'.join(f'{indent_string}{line}' for line in multiline_string.splitlines())

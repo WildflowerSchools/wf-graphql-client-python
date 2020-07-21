@@ -6,6 +6,8 @@ VERSION = open(os.path.join(BASEDIR, 'VERSION')).read().strip()
 
 # Dependencies (format is 'PYPI_PACKAGE_NAME[>=]=VERSION_NUMBER')
 BASE_DEPENDENCIES = [
+    'requests>=2.24.0',
+    'tenacity>=6.2.0'
 ]
 
 # TEST_DEPENDENCIES = [
