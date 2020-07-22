@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Operation:
 
     def __init__(
@@ -161,16 +162,23 @@ class Parameter:
     def __init__(
         self,
         parameter_name,
-        variable_name
+        variable_name=None,
+        value=None,
+        quote_value=False,
     ):
         self.parameter_name = parameter_name
-        self.variable_name= variable_name
+        self.variable_name = variable_name
+        self.value = value
+        self.quote_value = quote_value
 
     def request_body_string(self):
-        request_string = '{}: {}'.format(
-            self.parameter_name,
-            f'${self.variable_name}'
-        )
+        if self.variable_name is not None:
+            request_string = '{}: {}'.format(
+                self.parameter_name,
+                f'${self.variable_name}'
+                )
+        else:
+            request_string = f'{self.parameter_name}: {graphql_client.utils.json2gql(self.value)}'
         return request_string
 
 def indent(

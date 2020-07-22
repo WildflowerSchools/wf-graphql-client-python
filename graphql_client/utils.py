@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -18,3 +19,8 @@ def graphql_json_dumps(object, indent='  '):
         cls=GraphQLJsonEncoder,
         indent=indent
     )
+
+
+def json2gql(data):
+    json_data = json.dumps(data)
+    return re.sub(r'"(.*?)"(?=:)', r'\1', json_data)
